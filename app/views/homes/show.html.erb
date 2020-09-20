@@ -1,0 +1,15 @@
+<h1>Pacelist</h1>
+
+<% if @user.present? %>
+    <div>uid: <%= @user.uid %></div>
+    <div>email: <%= @user.email %></div>
+
+    <h2> some tracks</h2>
+    <ul>
+    <% @user.spotify_user.saved_tracks.each do |track| %>
+        <li><%= track.name %> - <%= track.artists.first.name %>
+    <% end %>
+    </ul>
+<% else %>
+    <%= link_to 'Sign in with Spotify', user_spotify_omniauth_authorize_path %>
+<% end %>
