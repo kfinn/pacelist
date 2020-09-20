@@ -1,0 +1,22 @@
+<h1>New Playlist</h1>
+<%= form_with model: @playlist do |f| %>
+    <div>
+        <%= f.label :name do %>
+            Name:
+            <%= f.text_field :name %>
+        <% end %>
+    </div>
+    <div>
+        <%= f.label :min_tempo do %>
+            Min Tempo:
+            <%= f.number_field :min_tempo %>
+        <% end %>
+    </div>
+    <div>
+        <%= f.label :max_tempo do %>
+            Max Tempo:
+            <%= f.number_field :max_tempo %>
+        <% end %>
+    </div>
+    <%= f.submit %>
+<% end %>

@@ -1,6 +1,10 @@
 class User < ApplicationRecord
   devise :omniauthable, :trackable, omniauth_providers: %i[spotify]
-  
+
+  has_many :playlists
+  has_many :saved_tracks
+  has_many :user_syncs
+
   def self.from_omniauth(omniauth)
     find_or_initialize_by(
     provider: omniauth[:provider],

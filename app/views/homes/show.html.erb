@@ -4,11 +4,14 @@
     <div>uid: <%= @user.uid %></div>
     <div>email: <%= @user.email %></div>
 
-    <h2> some tracks</h2>
+    <h2>New Playlist</h2>
+    <%= link_to 'New Playlist', new_playlist_path(playlist: {}) %>
+
+    <h2> Some Tracks</h2>
     <ul>
-    <% @user.spotify_user.saved_tracks.each do |track| %>
-        <li><%= track.name %> - <%= track.artists.first.name %>
-    <% end %>
+        <% @user.spotify_user.saved_tracks.each do |track| %>
+            <li><%= track.name %> - <%= track.artists.first.name %>
+        <% end %>
     </ul>
 <% else %>
     <%= link_to 'Sign in with Spotify', user_spotify_omniauth_authorize_path %>
