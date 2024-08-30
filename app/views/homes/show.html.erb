@@ -1,0 +1,21 @@
+<h1>Pacelist</h1>
+
+<% if @user.present? %>
+    <div>uid: <%= @user.uid %></div>
+    <div>email: <%= @user.email %></div>
+
+    <h2>New Playlist</h2>
+    <%= link_to 'New Playlist', new_playlist_path(playlist: {}) %>
+
+    <h2> Some Tracks</h2>
+    <ul>
+        <% @user.spotify_user.saved_tracks.each do |track| %>
+            <li><%= track.name %> - <%= track.artists.first.name %>
+        <% end %>
+    </ul>
+<% else %>
+
+    <%= form_with url: user_spotify_omniauth_authorize_path, data: { turbo: false } do |f| %>
+     <%= f.submit 'Sign in with Spotify' %>
+    <% end %>
+<% end %>

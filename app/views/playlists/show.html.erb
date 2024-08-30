@@ -1,0 +1,22 @@
+<h1><%= @playlist.name %></h1>
+
+<h2>Latest Sync</h2>
+
+<% if @playlist.latest_playlist_sync.present? %>
+  <div>
+    Started at <%= @playlist.latest_playlist_sync.created_at %>
+  </div>
+  <% if @playlist.latest_playlist_sync.completed? %>
+    <div>
+      Completed at <%= @playlist.latest_playlist_sync.completed_at %>
+    </div>
+  <% else %>
+    <div>
+      In progress...
+    </div>
+  <% end %>
+<% else %>
+  <div>
+    Not synced yet
+  </div>
+<% end %>
