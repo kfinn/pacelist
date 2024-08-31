@@ -8,7 +8,6 @@ module Spotify
         .body
         .fetch('items')
         .map do |attributes|
-          puts attributes
           new(
             artists: attributes.dig('track', 'artists').map { |artist_attributes| Artist.new(artist_attributes.slice('name')) },
             **attributes.fetch('track').slice('id', 'name')
