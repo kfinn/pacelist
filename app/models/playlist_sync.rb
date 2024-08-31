@@ -9,7 +9,6 @@ class PlaylistSync < ApplicationRecord
   has_one :user_sync, dependent: :destroy
   has_one :audio_features_sync, dependent: :destroy
 
-  delegate :spotify_user, to: :user
   delegate :spotify_playlist, to: :playlist
 
   after_create -> { delay.start_sync! }
@@ -33,22 +32,20 @@ class PlaylistSync < ApplicationRecord
   end
 
   def sync!
-    remove_existing_tracks!
-    add_new_tracks!
-    completed!
+    user.authenticated do
+      remove_existing_tracks!
+      add_new_tracks!
+      completed!
+    end
   end
 
   def remove_existing_tracks!
-    tracks = spotify_playlist.tracks
-    while tracks.any?
-      spotify_playlist.remove_tracks! tracks
-      tracks = spotify_playlist.tracks
-    end
+    spotify_playlist.delete_playlist_items! spotify_playlist.playlist_items while spotify_playlist.playlist_items.any?
   end
 
   def add_new_tracks!
     tracks_matching_tempo.in_batches(of: 10) do |tracks_matching_tempo_batch|
-      spotify_playlist.add_tracks! tracks_matching_tempo_batch.map(&:spotify_track_uri)
+      spotify_playlist.add_playlist_items! tracks_matching_tempo_batch.map(&:spotify_track_uri)
     end
   end
 

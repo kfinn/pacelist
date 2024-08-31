@@ -14,7 +14,7 @@ class AudioFeaturesSync < ApplicationRecord
       return
     end
 
-    audio_features_batch = RSpotify::AudioFeatures.find(tracks_batch.map(&:spotify_track_id))
+    audio_features_batch = Spotify::AudioFeatures.where(ids: tracks_batch.map(&:spotify_track_id))
 
     transaction do
       tracks_batch.zip(audio_features_batch).each do |track, audio_features|

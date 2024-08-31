@@ -19,10 +19,12 @@ class Playlist < ApplicationRecord
   end
 
   def find_or_create_spotify_playlist!
-    return RSpotify::Playlist.find_by_id(spotify_playlist_id) if spotify_playlist_id.present? # rubocop:disable Rails/DynamicFindBy
+    user.authenticated do
+      return Spotify::Playlist.find(spotify_playlist_id) if spotify_playlist_id.present?
 
-    user.spotify_user.create_playlist!(name, public: false).tap do |spotify_playlist|
-      update! spotify_playlist_id: spotify_playlist.id
+      Playlist.create!(name, public: false).tap do |spotify_playlist|
+        update! spotify_playlist_id: spotify_playlist.id
+      end
     end
   end
 end

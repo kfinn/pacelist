@@ -12,11 +12,11 @@ class User < ApplicationRecord
       provider: omniauth[:provider],
       uid: omniauth[:uid]
     ).tap do |user|
-      user.update! subscriber_params_from_omniauth(omniauth)
+      user.update! user_attributes_from_omniauth(omniauth)
     end
   end
 
-  def self.subscriber_params_from_omniauth(omniauth)
+  def self.user_attributes_from_omniauth(omniauth)
     {
       email: omniauth[:info][:email],
       spotify_credential_token: omniauth[:credentials][:token],
@@ -26,24 +26,42 @@ class User < ApplicationRecord
     }.compact
   end
 
-  def spotify_user
-    @spotify_user ||= RSpotify::User.new to_rspotify_params
+  def authenticated(&)
+    self.class.authenticated_as(self, &)
   end
 
-  private
+  def spotify_credentials
+    @spotify_credentials ||= SpotifyCredentials.new(
+      access_token: spotify_credential_token,
+      token_type: 'Bearer',
+      expires_in: spotify_credential_expires_at - Time.zone.now
+    )
 
-  def to_rspotify_params
-    {
-      info: {
-        id: uid,
-        email:
-      },
-      credentials: {
-        token: spotify_credential_token,
-        refresh_token: spotify_credential_refresh_token,
-        expires_at: spotify_credential_expires_at.to_i,
-        expires: spotify_credential_expires
-      }
-    }.with_indifferent_access
+    unless @spotify_credentials.valid?
+      @spotify_credentials = SpotifyCredentials.for_user(self)
+
+      update!(
+        spotify_credential_token: @spotify_credentials.access_token,
+        spotify_credential_expires_at: @spotify_credentials.expires_in.seconds.from_now
+      )
+    end
+
+    @spotify_credentials
+  end
+
+  class << self
+    AUTHENTICATED_USER_THREAD_LOCAL_KEY = "#{name}.authenticated_user".freeze
+
+    def authenticated_user
+      Thread.current[AUTHENTICATED_USER_THREAD_LOCAL_KEY]
+    end
+
+    def authenticated_as(user)
+      authenticated_user_was = authenticated_user
+      Thread.current[AUTHENTICATED_USER_THREAD_LOCAL_KEY] = user
+      yield
+    ensure
+      Thread.current[AUTHENTICATED_USER_THREAD_LOCAL_KEY] = authenticated_user_was
+    end
   end
 end

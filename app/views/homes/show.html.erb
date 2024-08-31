@@ -9,7 +9,7 @@
 
     <h2> Some Tracks</h2>
     <ul>
-        <% @user.spotify_user.saved_tracks.each do |track| %>
+        <% @spotify_saved_tracks.each do |track| %>
             <li><%= track.name %> - <%= track.artists.first.name %>
         <% end %>
     </ul>
